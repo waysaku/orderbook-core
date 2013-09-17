@@ -4,10 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>jp.co.test</groupId>
-  <artifactId>iotet-core</artifactId>
+  <artifactId>orderbook-core</artifactId>
   <packaging>jar</packaging>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Project - iotet-core</name>
+  <name>Project - orderbook-core</name>
   <url>http://maven.apache.org</url>
 
   <parent>
