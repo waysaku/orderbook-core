@@ -17,8 +17,12 @@ package jp.co.test.iotet_core;
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 
+import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Verticle;
 
 /*
@@ -27,9 +31,39 @@ This is a simple Java verticle which receives `ping` messages on the event bus a
 public class PingVerticle extends Verticle {
 
   public void start() {
+	final Logger logger = container.logger();
+	
+	
+	container.deployModule("com.bloidonia.jdbc-persistor-v2.1", new Handler<AsyncResult<String>>() {
+		@Override
+		public void handle(AsyncResult<String> msg) {
+			logger.info("connected!");
+		}
+	});
 
+	JsonObject config = container.config();
+	config.putString("address", "com.bloidonia.jdbcpersistor");
+	config.putString("url", "jdbc:mysql://localhost:3306/vertx_test");
+	config.putString("username", "root");
+	config.putString("password", "");
+	
+	
+	EventBus eventBus = vertx.eventBus();
+	
+	JsonObject obj = new JsonObject()
+		.putString("action", "select")
+		.putString("stmt", "select * from test");
 
-    vertx.eventBus().registerHandler("ping-address", new Handler<Message<String>>() {
+	logger.info("send msg");
+	eventBus.send("com.bloidonia.jdbcpersistor", obj, new Handler<Message>() {
+		@Override
+		public void handle(Message msg) {
+			logger.info("response!");
+			logger.info(msg.body());
+		}
+	});
+
+    vertx.eventBus().registerHandler("save-user", new Handler<Message<String>>() {
       @Override
       public void handle(Message<String> message) {
         message.reply("pong!");
