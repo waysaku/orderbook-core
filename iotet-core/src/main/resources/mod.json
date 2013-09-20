@@ -2,7 +2,7 @@
 
   // Java verticle
   "main":"jp.co.test.iotet_core.PingVerticle",
-
+  "auto-redeploy": true,
   // In this example we also provide various other versions of the main verticle, you can uncomment this and
   // play around:
 

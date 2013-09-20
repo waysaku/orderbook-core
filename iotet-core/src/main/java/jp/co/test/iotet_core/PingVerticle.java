@@ -21,6 +21,8 @@ import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Verticle;
@@ -33,43 +35,59 @@ public class PingVerticle extends Verticle {
   public void start() {
 	final Logger logger = container.logger();
 	
-	
-	container.deployModule("com.bloidonia.jdbc-persistor-v2.1", new Handler<AsyncResult<String>>() {
+	JsonObject config = container.config();
+	config.putString("address", "jdbc.test");
+	config.putString("url", "jdbc:mysql://localhost:3306/vertx_test");
+	config.putString("username", "root");
+	config.putString("password", "");
+
+	JsonObject jdbcConfig = new JsonObject()
+		.putString("address", "jdbc.test")
+		.putString("url", "jdbc:mysql://localhost:3306/vertx_test")
+		.putString("username", "root")
+		.putString("password", "");
+	container.deployModule("com.bloidonia.jdbc-persistor-v2.1", jdbcConfig, new Handler<AsyncResult<String>>() {
 		@Override
 		public void handle(AsyncResult<String> msg) {
 			logger.info("connected!");
 		}
 	});
 
-	JsonObject config = container.config();
-	config.putString("address", "com.bloidonia.jdbcpersistor");
-	config.putString("url", "jdbc:mysql://localhost:3306/vertx_test");
-	config.putString("username", "root");
-	config.putString("password", "");
-	
-	
-	EventBus eventBus = vertx.eventBus();
-	
-	JsonObject obj = new JsonObject()
-		.putString("action", "select")
-		.putString("stmt", "select * from test");
 
-	logger.info("send msg");
-	eventBus.send("com.bloidonia.jdbcpersistor", obj, new Handler<Message>() {
+	
+	
+	HttpServer httpServer = vertx.createHttpServer();
+	httpServer.requestHandler(new Handler<HttpServerRequest>() {
 		@Override
-		public void handle(Message msg) {
-			logger.info("response!");
-			logger.info(msg.body());
-		}
-	});
+		public void handle(HttpServerRequest request) {
+			EventBus eventBus = vertx.eventBus();
 
-    vertx.eventBus().registerHandler("save-user", new Handler<Message<String>>() {
-      @Override
-      public void handle(Message<String> message) {
-        message.reply("pong!");
-        container.logger().info("Sent back pong");
-      }
-    });
+			
+			if(request.path().equals("/test")) {
+				logger.info("okkkkkkkkkkkkkkkkkkkkkkkk");
+			} else if(request.path().equals("/save")) {
+				JsonObject obj = new JsonObject()
+				.putString("action", "select")
+				.putString("stmt", "select * from test");
+
+				logger.info("send query");
+				eventBus.send("jdbc.test", obj, new Handler<Message>() {
+					@Override
+					public void handle(Message msg) {
+						logger.info("response!");
+						logger.info(msg.body());
+					}
+				});
+			}
+			
+			request.response().end();
+		}
+	}).listen(1234, "localhost");
+
+	
+	
+
+
 
     container.logger().info("PingVerticle started");
 
