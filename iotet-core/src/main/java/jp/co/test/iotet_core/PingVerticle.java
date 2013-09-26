@@ -35,26 +35,21 @@ public class PingVerticle extends Verticle {
   public void start() {
 	final Logger logger = container.logger();
 	
-	JsonObject config = container.config();
-	config.putString("address", "jdbc.test");
-	config.putString("url", "jdbc:mysql://localhost:3306/vertx_test");
-	config.putString("username", "root");
-	config.putString("password", "");
 
 	JsonObject jdbcConfig = new JsonObject()
 		.putString("address", "jdbc.test")
 		.putString("url", "jdbc:mysql://localhost:3306/vertx_test")
 		.putString("username", "root")
+		.putString("driver", "com.mysql.jdbc.Driver")
 		.putString("password", "");
-	container.deployModule("com.bloidonia.jdbc-persistor-v2.1", jdbcConfig, new Handler<AsyncResult<String>>() {
+	container.deployModule("com.bloidonia~mod-jdbc-persistor~2.1", jdbcConfig, new Handler<AsyncResult<String>>() {
 		@Override
 		public void handle(AsyncResult<String> msg) {
+			logger.info(msg.succeeded());
+			logger.info(msg.result());
 			logger.info("connected!");
 		}
 	});
-
-
-	
 	
 	HttpServer httpServer = vertx.createHttpServer();
 	httpServer.requestHandler(new Handler<HttpServerRequest>() {
