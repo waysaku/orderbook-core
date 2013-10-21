@@ -1,7 +1,7 @@
 {
 
   // Java verticle
-  "main":"jp.co.test.iotet_core.PingVerticle",
+  "main":"jp.co.test.iotet_core.HelloWorld",
   "auto-redeploy": true,
 
   //"includes": "com.bloidonia~mod-jdbc-persistor~2.1",

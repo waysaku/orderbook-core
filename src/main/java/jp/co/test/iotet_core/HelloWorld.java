@@ -30,7 +30,7 @@ import org.vertx.java.platform.Verticle;
 /*
 This is a simple Java verticle which receives `ping` messages on the event bus and sends back `pong` replies
  */
-public class PingVerticle extends Verticle {
+public class HelloWorld extends Verticle {
 
   public void start() {
 	final Logger logger = container.logger();
@@ -42,6 +42,7 @@ public class PingVerticle extends Verticle {
 		.putString("username", "root")
 		.putString("driver", "com.mysql.jdbc.Driver")
 		.putString("password", "");
+
 	container.deployModule("com.bloidonia~mod-jdbc-persistor~2.1", jdbcConfig, new Handler<AsyncResult<String>>() {
 		@Override
 		public void handle(AsyncResult<String> msg) {
@@ -54,28 +55,28 @@ public class PingVerticle extends Verticle {
 	HttpServer httpServer = vertx.createHttpServer();
 	httpServer.requestHandler(new Handler<HttpServerRequest>() {
 		@Override
-		public void handle(HttpServerRequest request) {
+		public void handle(final HttpServerRequest request) {
 			EventBus eventBus = vertx.eventBus();
 
 			
 			if(request.path().equals("/test")) {
-				logger.info("okkkkkkkkkkkkkkkkkkkkkkkk");
+				request.response().putHeader("content-type", "text/plain");
+				request.response().end("This is Test. Hello World!");  
+
 			} else if(request.path().equals("/save")) {
 				JsonObject obj = new JsonObject()
 				.putString("action", "select")
 				.putString("stmt", "select * from test");
 
-				logger.info("send query");
 				eventBus.send("jdbc.test", obj, new Handler<Message>() {
 					@Override
 					public void handle(Message msg) {
-						logger.info("response!");
-						logger.info(msg.body());
+						logger.info("response success");
+						request.response().putHeader("content-type", "text/plain");
+						request.response().end(msg.body().toString());
 					}
 				});
 			}
-			
-			request.response().end();
 		}
 	}).listen(1234, "localhost");
 

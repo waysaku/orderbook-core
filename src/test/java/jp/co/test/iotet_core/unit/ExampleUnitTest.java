@@ -1,6 +1,6 @@
 package jp.co.test.iotet_core.unit;
 
-import jp.co.test.iotet_core.PingVerticle;
+import jp.co.test.iotet_core.HelloWorld;
 import org.junit.Test;
 
 /*
@@ -24,7 +24,7 @@ public class ExampleUnitTest {
 
   @Test
   public void testVerticle() {
-    PingVerticle vert = new PingVerticle();
+    HelloWorld vert = new HelloWorld();
 
     // do something with verticle
   }
