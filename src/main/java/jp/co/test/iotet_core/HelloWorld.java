@@ -78,7 +78,7 @@ public class HelloWorld extends Verticle {
 				});
 			}
 		}
-	}).listen(1234, "localhost");
+	}).listen(1234);
 
 	
 	
